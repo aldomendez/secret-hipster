@@ -122,8 +122,8 @@
 	}
 
 
-
-	if (false) {
+$series = "";
+	if (true) {
 		$query = file_get_contents("./cicle_time_query.sql");
 		$conn = oci_connect('phase2', 'g4it2day', 'MXOPTIX');
 		$stid = oci_parse($conn, $query);
@@ -142,10 +142,11 @@
 ?><!DOCTYPE HTML>
 <html>
 	<head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+        <meta name="controller" content="Inicio">
+        <meta name="action" content="InputCarrier">
+        <meta name="userid" content="<?php echo $_SESSION['numero']; ?>">
+        <meta name="url" content="//cymautocert/osaapp/LR4-GUI/">
 		<title>Tiempos de ciclo LR4</title>
 		<style type="text/css">
 		body {
@@ -154,9 +155,6 @@
 		</style>
 		<link rel="stylesheet" media="screen" href="../bootstrap/css/bootstrap.css">
 		<link rel="stylesheet" media="screen" href="../bootstrap/css/bootstrap-responsive.css">
-		<script type="text/javascript">
-        // Script goes here
-		</script>
 	</head>
 	<body>
 		
@@ -180,38 +178,78 @@
 	</div>
 <div class="container-fluid">
 	<div class="row-fluid">
-		<div class="span2">
-			<ul class="nav nav-list bs-docs-sidenav affix">
-				<li></li>
-			</ul>
-		</div>
-	</div>
-
-    <div class="row-fluid">
+        <div class="span2">
+            <ul class="nav nav-tabs nav-stacked">
+                <li><a href="#SiLens">SiLens <span class="pull-right badge badge-success" data-bind="text:series.SiLens.length">7</span></a></li>
+                <!-- <li><a href="#Alps">ALPS</a></li> -->
+            </ul>
+                </div>
         <div class="span10">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>Process</th>
-                        <th>Pass</th>
-                        <th>Fail</th>
-                        <th>Meta</th>
-                        <th>Tiempo de ciclo</th>
-                        <th>Yield de produccion</th>
-                        <th>Yield Proceso</th>
-                        <th>Comentarios</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    td
-                </tbody>
-            </table>
+            <h2>SiLens</h2><a name="SiLens"></a>
+            <div data-bind="foreach:{data:series.SiLens,as:'maquina'}">
+                <table class="table table-bordered table-striped table-condensed">
+                    <caption data-bind="text:name">Cybond57</caption>
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Process</th>
+                            <th>Pass</th>
+                            <th>Fail</th>
+                            <th>Meta</th>
+                            <th>Tiempo de ciclo</th>
+                            <th>Yield de produccion</th>
+                            <th>Yield Proceso</th>
+                            <th>Comentarios</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:yieldData">
+                        <tr>
+                            <td data-bind="text:$index">6:30-10:30</td>
+                            <td data-bind="text:$parentContext.valueOf()"></td>
+                            <td></td>
+                            <td></td>
+                            <td>6</td>
+                            <td></td>
+                            <td>0.0%</td>
+                            <td>0.0%</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 
+            <h2>ALPS</h2><a name="Alps"></a>
+            <div data-bind="foreach:series.ALPS">
+                <table class="table table-bordered table-striped table-condensed">
+                    <caption data-bind="text:name">Cybond57</caption>
+                    <thead>
+                        <tr>
+                            <th>Hora</th><th>Process</th><th>Pass</th><th>Fail</th><th>Meta</th><th>Tiempo de ciclo</th><th>Yield de produccion</th><th>Yield Proceso</th><th>Comentarios</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>6:30-10:30</td><td></td><td></td><td></td><td>6</td><td></td><td>0.0%</td><td>0.0%</td><td></td>
+                        </tr>
+                        <tr>
+                            <td>10:30-14:30</td><td></td><td></td><td></td><td>6</td><td></td><td>0.0%</td><td>0.0%</td><td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+             -->
         </div>
     </div>
     
 </div>
+<script type="text/javascript" src='./js/date.js'></script>
 <script type="text/javascript" src="./jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src='../jsLib/knockout/knockout.js'></script>
 <script type="text/javascript" src="./js/Sparky.js"></script>
+<script>
+    jQuery(document).ready(
+        console.log(App.addSeries(<?php echo(json_encode($series)) ?>))
+    );
+</script>
 </body>
 </html>

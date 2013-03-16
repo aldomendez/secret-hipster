@@ -1,4 +1,4 @@
-var Sparky = Sparky || (function($) {
+var App = App || (function($,ko) {
 
     var Utils   = {}, // Your Toolbox  
         Ajax    = {}, // Your Ajax Wrapper
@@ -17,11 +17,35 @@ var Sparky = Sparky || (function($) {
 	            	Utils.settings.meta[ this.name.replace('app-','') ] = this.content;
 	            });
                 
-            }
+            },
+            workingHours:[
+            	// Antier
+            	[Date.today().addDays(-2).set({hour:6,minute:30}),Date.today().addDays(-2).set({hour:10,minute:30})],
+            	[Date.today().addDays(-2).set({hour:10,minute:30}),Date.today().addDays(-2).set({hour:14,minute:30})],
+            	[Date.today().addDays(-2).set({hour:14,minute:30}),Date.today().addDays(-2).set({hour:18,minute:30})],
+            	[Date.today().addDays(-2).set({hour:18,minute:30}),Date.today().addDays(-2).set({hour:22,minute:30})],
+            	[Date.today().addDays(-2).set({hour:22,minute:30}),Date.today().addDays(-1).set({hour:2,minute:30})],
+            	// Ayer
+            	[Date.today().addDays(-1).set({hour:6,minute:30}),Date.today().addDays(-1).set({hour:10,minute:30})],
+            	[Date.today().addDays(-1).set({hour:10,minute:30}),Date.today().addDays(-1).set({hour:14,minute:30})],
+            	[Date.today().addDays(-1).set({hour:14,minute:30}),Date.today().addDays(-1).set({hour:18,minute:30})],
+            	[Date.today().addDays(-1).set({hour:18,minute:30}),Date.today().addDays(-1).set({hour:22,minute:30})],
+            	[Date.today().addDays(-1).set({hour:22,minute:30}),Date.today().set({hour:2,minute:30})],
+            	// Hoy
+            	[Date.today().set({hour:2,minute:30}),Date.today().set({hour:6,minute:30})],
+            	[Date.today().set({hour:6,minute:30}),Date.today().set({hour:10,minute:30})],
+            	[Date.today().set({hour:10,minute:30}),Date.today().set({hour:14,minute:30})],
+            	[Date.today().set({hour:14,minute:30}),Date.today().set({hour:18,minute:30})],
+            	[Date.today().set({hour:18,minute:30}),Date.today().set({hour:22,minute:30})],
+            ]
         },
         cache: {
             window: window,
             document: document
+        },
+        addSeries: function (series) {
+        	App.data.series = series;
+        	return App.data.series;
         },
         home_url: function(path){
             if(typeof path=="undefined"){
@@ -34,62 +58,58 @@ var Sparky = Sparky || (function($) {
                 console.log(what);
             }
         },
-        parseRoute: function(input) {
-	        
-		    var delimiter = input.delimiter || '/',
-		        paths = input.path.split(delimiter),
-		        check = input.target[paths.shift()],
-		        exists = typeof check != 'undefined',
-		        isLast = paths.length == 0;
-		    input.inits = input.inits || [];
-		    
-		    if (exists) {
-		    	if(typeof check.init == 'function'){
-	    			input.inits.push(check.init);
-	    		}
-		    	if (isLast) {
-		            input.parsed.call(undefined, {
-		                exists: true,
-		                type: typeof check,
-		                obj: check,
-		                inits: input.inits
-		            });
-		        } else {
-		            Utils.parseRoute({
-		                path: paths.join(delimiter), 
-		                target: check,
-		                delimiter: delimiter,
-		                parsed: input.parsed,
-		                inits: input.inits
-		            });
-		        }
-		    } else {
-		        input.parsed.call(undefined, {
-		            exists: false
-		        });
-		    }
+        template: function (arr, html) {
+			return arr.map(function(obj) {
+				return html.join('').replace(
+					/#\{(\w+)\}/g,
+					function(_, match) { return obj[match]; }
+				);
+			}).join('');
 		},
-		route: function(){
-            
-            Utils.parseRoute({
-	            path: Utils.settings.meta.route,
-			    target: Routes,
-			    delimiter: '/',
-			    parsed: function(res) {
-			    	if(res.exists && res.type=='function'){
-			    		if(res.inits.length!=0){
-			        		for(var i in res.inits){
-			        			res.inits[i].call();
-			        		}
-			        	}
-			        	res.obj.call();
-			        }
-			    }
-	        });
-            
-        } 
+		tokenizeSiLens: function () {
+			for (var o in App.data.series.SiLens) {
+				ws = App.data.series.SiLens[o]; //Working Serie
+				ws.yieldData = ws.yieldData || [];
+				for (var i = 0; i < ws.data.length; i++) {
+					var h = _matchHour(ws.data[i][0]);
+					// _log(h);
+					if (typeof ws.yieldData[h] == 'undefined') {
+						ws.yieldData[h] = {h:h,total:0,pass:0,fail:0,meta:0,ciclo:0,yieldProd:0,yieldProc:0,sumTiempo:0};
+					};
+
+					ws.yieldData[h]['total'] = 1 + ws.yieldData[h]['total'];
+					
+					if (ws.data[i][2] == "P") {
+						ws.yieldData[h]['pass'] = 1 + ws.yieldData[h]['pass'];
+					} else {
+						ws.yieldData[h]['fail'] = 1 + ws.yieldData[h]['fail'];
+					};
+					// ws.yieldData[h]['total'] = 1 + ws.yieldData[h]['total'];
+					// ws.yieldData[h]['total'] = 1 + ws.yieldData[h]['total'];
+					// ws.yieldData[h]['total'] = ws.yieldData[h]['total']++;
+					// _log([ws.name,ws.data[i][0],ws.data[i][1],ws.data[i][2]]);
+					// _log([(new Date(ws.data[i][0])),_matchHour(ws.data[i][0])]);
+				};
+			};
+			_log(App.data.series)
+			ko.applyBindings(App.data);
+		},
+		matchHour:function (hour) {
+			var h = new Date(hour);
+			var o = Utils.settings.workingHours;
+			for (var i = 0; i < o.length; i++) {
+				var wh = o[i]
+				var test = h.between(wh[0],wh[1]);
+				if (test) {
+					// return [i,wh[1],wh[0]];
+					return i;
+				};
+			};
+			return -1;
+		}
     };
     var _log = Utils.log;
+    var _matchHour = Utils.matchHour;
 	
     Ajax = {
 	    ajaxUrl: Utils.home_url('ajax'),
@@ -144,22 +164,28 @@ var Sparky = Sparky || (function($) {
     };
     Routes = {};
     App = {
+    	data: {},
         logic: {},
         init: function() {
-            
+
             Utils.settings.init();
-            Events.init();   
-            Utils.route();    
+            Events.init();
+            Utils.tokenizeSiLens();
             
         }
     };
     
     Public = {
-        init: App.init  
+        init: App.init,
+        addSeries:Utils.addSeries,
+        log:_log,
+        data:App.data,
+        h:Utils.settings.workingHours,
+        match:Utils.matchHour
     };
 
     return Public;
 
-})(window.jQuery);
+})(window.jQuery,ko);
 
-jQuery(document).ready(Sparky.init);
+jQuery(document).ready(App.init);
