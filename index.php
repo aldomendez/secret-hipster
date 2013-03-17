@@ -4,7 +4,7 @@
 // tzone must be in decimal such as 1hr 45mins would be 1.75, behind 
 // times should be represented as negative decimals 10hours behind 
 // would be -10 
-	ini_set('display_errors','off');
+	ini_set('display_errors','on');
     ini_set('date.timezone', 'America/Mexico_City');
     error_reporting(E_ALL ^ E_NOTICE);
 
@@ -16,14 +16,6 @@
 	    }
 	}
 
-	function unixToiCal($uStamp = 0, $tzone = 0.0) { 
-	
-		$uStampUTC = $uStamp + ($tzone * 3600);        
-		$stamp  = date("Ymd\THis\Z", $uStampUTC); 
-		
-		return $stamp;        
-
-	}
 	function db_conect($db){
 		global $conn;
 		// echo "vamos bien conect";
@@ -121,16 +113,21 @@
 		return $n;
 	}
 
+function getDataFromFile()
+{
+	$na = file_get_contents('n.json');
+	return json_decode($na);
+}
 
 $series = "";
-	if (true) {
+	if (false) {
 		$query = file_get_contents("./cicle_time_query.sql");
 		$conn = oci_connect('phase2', 'g4it2day', 'MXOPTIX');
 		$stid = oci_parse($conn, $query);
 		oci_execute($stid);
         $series = getData($stid);
 	} else {
-		$pack_id = false;
+		$series = getDataFromFile();
 	}
 
 	
@@ -153,8 +150,8 @@ $series = "";
 			padding-top: 60px;
 		}
 		</style>
-		<link rel="stylesheet" media="screen" href="../bootstrap/css/bootstrap.css">
-		<link rel="stylesheet" media="screen" href="../bootstrap/css/bootstrap-responsive.css">
+		<link rel="stylesheet" media="screen" href="./bootstrap/css/bootstrap.css">
+		<link rel="stylesheet" media="screen" href="./bootstrap/css/bootstrap-responsive.css">
 	</head>
 	<body>
 		
@@ -171,6 +168,8 @@ $series = "";
 					<ul class="nav">
 						<li class="active"><a href="../">Home</a></li>
 						<li><a href="."><i class="icon-refresh icon-white"></i> Actualizar</a></li>
+						<li><input type="checkbox" data-bind="checked:$data.debug"> development</label>
+						</li>
 					</ul>
 				</div><!--/.nav-collapse -->
 			</div>
@@ -203,17 +202,20 @@ $series = "";
                         </tr>
                     </thead>
                     <tbody data-bind="foreach:yieldData">
+                    	
+                    	<pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>
                         <tr>
-                            <td data-bind="text:$index">6:30-10:30</td>
-                            <td data-bind="text:$parentContext.valueOf()"></td>
-                            <td></td>
-                            <td></td>
-                            <td>6</td>
-                            <td></td>
-                            <td>0.0%</td>
-                            <td>0.0%</td>
-                            <td></td>
+                            <td data-bind="text:h">Hora</td>
+                            <td data-bind="text:process">Process</td>
+                            <td data-bind="text:pass">Pass</td>
+                            <td data-bind="text:fail">Fail</td>
+                            <td data-bind="text:meta">Meta</td>
+                            <td data-bind="text:ciclo">Tiempo de ciclo</td>
+                            <td data-bind="text:yieldProd + '%'">Yield de produccion</td>
+                            <td data-bind="text:yieldProc + '%'">Yield Proceso</td>
+                            <td data-bind="text:''">Comentarios</td>
                         </tr>
+                        
                     </tbody>
                 </table>
             </div>
