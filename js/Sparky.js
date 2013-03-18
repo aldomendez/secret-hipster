@@ -9,7 +9,8 @@ var App = App || (function($,ko) {
 
 	Utils = {
 		settings: {
-			debug: true,
+			whTest : 0,
+			debug: false,
 			meta: {},
 			init: function() {
 				
@@ -20,12 +21,15 @@ var App = App || (function($,ko) {
 			},
 			workingHours:[
 				// Antier
+				[Date.today().addDays(-3).set({hour:22,minute:30}),Date.today().addDays(-2).set({hour:2,minute:30})],
+				[Date.today().addDays(-2).set({hour:2,minute:30}),Date.today().addDays(-2).set({hour:6,minute:30})],
 				[Date.today().addDays(-2).set({hour:6,minute:30}),Date.today().addDays(-2).set({hour:10,minute:30})],
 				[Date.today().addDays(-2).set({hour:10,minute:30}),Date.today().addDays(-2).set({hour:14,minute:30})],
 				[Date.today().addDays(-2).set({hour:14,minute:30}),Date.today().addDays(-2).set({hour:18,minute:30})],
 				[Date.today().addDays(-2).set({hour:18,minute:30}),Date.today().addDays(-2).set({hour:22,minute:30})],
 				[Date.today().addDays(-2).set({hour:22,minute:30}),Date.today().addDays(-1).set({hour:2,minute:30})],
 				// Ayer
+				[Date.today().addDays(-1).set({hour:2,minute:30}),Date.today().addDays(-1).set({hour:6,minute:30})],
 				[Date.today().addDays(-1).set({hour:6,minute:30}),Date.today().addDays(-1).set({hour:10,minute:30})],
 				[Date.today().addDays(-1).set({hour:10,minute:30}),Date.today().addDays(-1).set({hour:14,minute:30})],
 				[Date.today().addDays(-1).set({hour:14,minute:30}),Date.today().addDays(-1).set({hour:18,minute:30})],
@@ -66,46 +70,80 @@ var App = App || (function($,ko) {
 				);
 			}).join('');
 		},
-		tokenizeSiLens: function () {
-			for (var o in App.data.series.SiLens) {
-				ws = App.data.series.SiLens[o]; //Working Serie
+		filter:function (needle, haystack) {
+			// body...
+		},
+		tokenizeSiLens:function () {
+			Utils.tokenize('SiLens',6);
+		},
+		tokenizeALPS:function () {
+			Utils.tokenize('ALPS',27);
+		},
+		tokenize: function (processName,meta) {
+			for (var o in App.data.series[processName]) {
+				ws = App.data.series[processName][o]; //Working Serie
 				ws.yieldData = ws.yieldData || [];
 				for (var i = 0; i < ws.data.length; i++) {
 					var h = _matchHour(ws.data[i][0]);
-					// _log(h);
+					//var h = Utils.newMatchHour(ws.data[i][0]);
+					hIndex = Utils.findIdGiven_h(ws.yieldData, h);
+					// _log(hIndex);
 					if (h !== -1) {
-						if (typeof ws.yieldData[h] == 'undefined') {
-							ws.yieldData.push({h:h,process:0,pass:0,fail:0,meta:6,ciclo:0,yieldProd:0,yieldProc:0,processTime:0});
+						if ( hIndex === -1 ) {
+							// Siendo la primera vez que se trabaja con el elemento se inicializa el objeto
+							var process = 1,
+								pass = 0,
+								fail = 0,
+								ciclo = ws.data[i][1],
+								yieldProd = 0,
+								yieldProc = 0,
+								processTime = ws.data[i][1];
+
+							if (ws.data[i][2] == "P") {
+								pass = 1;
+							} else {
+								fail = 1;
+							}
+
+							yieldProc = ((100 * pass) / process).toFixed(2);
+							yieldProd =  ((100 * process) / meta).toFixed(2);
+							// Se integran los datos al objeto
+							ws.yieldData.push({
+								h:h,
+								process:process,
+								pass:pass,
+								fail:fail,
+								meta:meta,
+								ciclo:ciclo,
+								yieldProd:yieldProd,
+								yieldProc:yieldProc,
+								processTime:processTime
+							});
+	
 						}else{
-							ws.yieldData[h].process = 1 + ws.yieldData[h].process;
+							ws.yieldData[hIndex].process = 1 + ws.yieldData[hIndex].process;
 							
 							if (ws.data[i][2] == "P") {
-								ws.yieldData[h].pass = 1 + ws.yieldData[h].pass;
+								ws.yieldData[hIndex].pass = 1 + ws.yieldData[hIndex].pass;
 							} else {
-								ws.yieldData[h].fail = 1 + ws.yieldData[h].fail;
+								ws.yieldData[hIndex].fail = 1 + ws.yieldData[hIndex].fail;
 							}
 						
-						ws.yieldData[h].processTime = ws.yieldData[h].processTime + ws.data[i][1];
-						ws.yieldData[h].ciclo = (ws.yieldData[h].processTime / ws.yieldData[h].process).toFixed(2);
-						ws.yieldData[h].yieldProc = ((100 * ws.yieldData[h].pass) / ws.yieldData[h].process).toFixed(2);
-						ws.yieldData[h].yieldProd = ((100 * ws.yieldData[h].process) / ws.yieldData[h].meta).toFixed(2);
-						// ws.yieldData[h]process = 1 + ws.yieldData[h]process;
-						// ws.yieldData[h]process = ws.yieldData[h]process++;
-						// _log([ws.name,ws.data[i][0],ws.data[i][1],ws.data[i][2]]);
-						// _log([(new Date(ws.data[i][0])),_matchHour(ws.data[i][0])]);
+							ws.yieldData[hIndex].processTime = ws.yieldData[hIndex].processTime + ws.data[i][1];
+							ws.yieldData[hIndex].ciclo = (ws.yieldData[hIndex].processTime / ws.yieldData[hIndex].process).toFixed(2);
+							ws.yieldData[hIndex].yieldProc = ((100 * ws.yieldData[hIndex].pass) / ws.yieldData[hIndex].process).toFixed(2);
+							ws.yieldData[hIndex].yieldProd = ((100 * ws.yieldData[hIndex].process) / ws.yieldData[hIndex].meta).toFixed(2);
 						}
 					} else {
-						_log("h: " + h + " reference:" + (new Date(ws.data[i][0])).toISOString())
+						_log("h: " + h + " reference:" + (moment(ws.data[i][0])))
 					}
 				};
 			};
-			_log(App.data.series)
-			ko.applyBindings(App.data);
 		},
-		findById:function (source, id) {
+		findIdGiven_h:function (source, id) {
 			for (var i = 0; i < source.length; i++) {
-				if (source[i].id === id) {
-					return source[i];
+				if (source[i].h === id) {
+					return i;
 				};
 			}
 			return -1;
@@ -118,12 +156,30 @@ var App = App || (function($,ko) {
 			}
 			return false;
 		},
+		isBetween:function (test,start,end) {
+			if (test.isBefore(start) && test.isAfter(end)) {
+				// _log([true,test,start,end])
+				return true;
+			}else{
+				// _log([false,test,start,end])
+				return false;
+			};
+		},
 		newMatchHour:function (hour) {
-			var h = new Date(hour);
-			var o = Utils.settings.workingHours;
+			var h = moment(hour);
+			var o = Utils.settings.momentWorkingHours;
 			for (var j = 0; j < o.length; j++) {
-				var wh = o[j];
-
+				var wh = o[j],
+					start = wh[0],
+					end = wh[1];
+				if (_isBetween(h,start,end)) {
+					// _log(j + " > " + h.format('hh:mm') + " [ " + wh[0].format('hh:mm') + " - " + wh[1].format("hh:mm") +" ] ");
+					return j;
+				}else{
+					_log("# " + h.format('hh:mm') + " [ " + wh[0].format('hh:mm') + " - " + wh[1].format("hh:mm") +" ] ");
+					Utils.whTest++;
+					return -1;
+				};
 			};
 		},
 		matchHour:function (hour) {
@@ -133,7 +189,7 @@ var App = App || (function($,ko) {
 				var wh = o[i]
 				var test = h.between(wh[0],wh[1]);
 				if (test) {
-					// return [i,wh[1],wh[0]];
+					// _log(i + " > " + moment(h).format('hh:mm') + " [ " + moment(wh[0]).format('hh:mm') + " - " + moment(wh[1]).format("hh:mm") +" ] ");
 					return i;
 				};
 			};
@@ -142,6 +198,7 @@ var App = App || (function($,ko) {
 	};
 	var _log = Utils.log;
 	var _matchHour = Utils.matchHour;
+	var _isBetween = Utils.isBetween;
 	
 	Ajax = {
 		ajaxUrl: Utils.home_url('ajax'),
@@ -197,7 +254,8 @@ var App = App || (function($,ko) {
 	Routes = {};
 	App = {
 		data: {
-			debug:ko.observable(false)
+			debug:ko.observable(false),
+			wh:Utils.settings.workingHours
 		},
 		logic: {},
 		init: function() {
@@ -205,7 +263,10 @@ var App = App || (function($,ko) {
 			Utils.settings.init();
 			Events.init();
 			Utils.tokenizeSiLens();
-			
+			Utils.tokenizeALPS();
+			// _log(App.data.series)
+			ko.applyBindings(App.data);
+
 		}
 	};
 	

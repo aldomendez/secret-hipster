@@ -5,15 +5,15 @@
 // times should be represented as negative decimals 10hours behind 
 // would be -10 
 	ini_set('display_errors','on');
-    ini_set('date.timezone', 'America/Mexico_City');
-    error_reporting(E_ALL ^ E_NOTICE);
+	ini_set('date.timezone', 'America/Mexico_City');
+	error_reporting(E_ALL ^ E_NOTICE);
 
 	if (!function_exists('json_encode')) {
-	    function json_encode($content) {
-	        require_once '../JSON.php';
-	        $json = new Services_JSON;
-	        return $json->encode($content);
-	    }
+		function json_encode($content) {
+			require_once '../JSON.php';
+			$json = new Services_JSON;
+			return $json->encode($content);
+		}
 	}
 
 	function db_conect($db){
@@ -82,16 +82,16 @@
 				}
 			*/
 			//echo "-> " . $step_name . " " . $system_id . "<br/>";
-            
-            /* 
-                SERIAL_NUM
-                PASS_FAIL
-                PROCESS_DATE
-                SYSTEM_ID
-                STEP_NAME
-                CYCLE_TIME
-            Esto lo utilizaba para el formato de las fechas pero ya no es necesario
-            */
+			
+			/* 
+				SERIAL_NUM
+				PASS_FAIL
+				PROCESS_DATE
+				SYSTEM_ID
+				STEP_NAME
+				CYCLE_TIME
+			Esto lo utilizaba para el formato de las fechas pero ya no es necesario
+			*/
 			if ($system_id!=null) {
 				$is_in_array = in_array($system_id, $seriesNames[$step_name]);
 				// echo "=-===" . !$is_in_array;
@@ -120,12 +120,12 @@ function getDataFromFile()
 }
 
 $series = "";
-	if (false) {
+	if (true) {
 		$query = file_get_contents("./cicle_time_query.sql");
 		$conn = oci_connect('phase2', 'g4it2day', 'MXOPTIX');
 		$stid = oci_parse($conn, $query);
 		oci_execute($stid);
-        $series = getData($stid);
+		$series = getData($stid);
 	} else {
 		$series = getDataFromFile();
 	}
@@ -139,15 +139,15 @@ $series = "";
 ?><!DOCTYPE HTML>
 <html>
 	<head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
-        <meta name="controller" content="Inicio">
-        <meta name="action" content="InputCarrier">
-        <meta name="userid" content="<?php echo $_SESSION['numero']; ?>">
-        <meta name="url" content="//cymautocert/osaapp/LR4-GUI/">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+		<meta name="controller" content="Inicio">
+		<meta name="action" content="InputCarrier">
+		<meta name="userid" content="<?php echo $_SESSION['numero']; ?>">
+		<meta name="url" content="//cymautocert/osaapp/LR4-GUI/">
 		<title>Tiempos de ciclo LR4</title>
 		<style type="text/css">
 		body {
-			padding-top: 60px;
+			/*padding-top: 60px;*/
 		}
 		</style>
 		<link rel="stylesheet" media="screen" href="./bootstrap/css/bootstrap.css">
@@ -155,7 +155,8 @@ $series = "";
 	</head>
 	<body>
 		
-	<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar navbar-inverse">
+		<a name="start"></a>
 		<div class="navbar-inner">
 			<div class="container-fluid">
 				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -168,7 +169,7 @@ $series = "";
 					<ul class="nav">
 						<li class="active"><a href="../">Home</a></li>
 						<li><a href="."><i class="icon-refresh icon-white"></i> Actualizar</a></li>
-						<li><input type="checkbox" data-bind="checked:$data.debug"> development</label>
+						<!-- <li><input type="checkbox" data-bind="checked:$data.debug"> development</label> -->
 						</li>
 					</ul>
 				</div><!--/.nav-collapse -->
@@ -177,81 +178,98 @@ $series = "";
 	</div>
 <div class="container-fluid">
 	<div class="row-fluid">
-        <div class="span2">
-            <ul class="nav nav-tabs nav-stacked">
-                <li><a href="#SiLens">SiLens <span class="pull-right badge badge-success" data-bind="text:series.SiLens.length">7</span></a></li>
-                <!-- <li><a href="#Alps">ALPS</a></li> -->
-            </ul>
-                </div>
-        <div class="span10">
-            <h2>SiLens</h2><a name="SiLens"></a>
-            <div data-bind="foreach:{data:series.SiLens,as:'maquina'}">
-                <table class="table table-bordered table-striped table-condensed">
-                    <caption data-bind="text:name">Cybond57</caption>
-                    <thead>
-                        <tr>
-                            <th>Hora</th>
-                            <th>Process</th>
-                            <th>Pass</th>
-                            <th>Fail</th>
-                            <th>Meta</th>
-                            <th>Tiempo de ciclo</th>
-                            <th>Yield de produccion</th>
-                            <th>Yield Proceso</th>
-                            <th>Comentarios</th>
-                        </tr>
-                    </thead>
-                    <tbody data-bind="foreach:yieldData">
-                    	
-                    	<pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>
-                        <tr>
-                            <td data-bind="text:h">Hora</td>
-                            <td data-bind="text:process">Process</td>
-                            <td data-bind="text:pass">Pass</td>
-                            <td data-bind="text:fail">Fail</td>
-                            <td data-bind="text:meta">Meta</td>
-                            <td data-bind="text:ciclo">Tiempo de ciclo</td>
-                            <td data-bind="text:yieldProd + '%'">Yield de produccion</td>
-                            <td data-bind="text:yieldProc + '%'">Yield Proceso</td>
-                            <td data-bind="text:''">Comentarios</td>
-                        </tr>
-                        
-                    </tbody>
-                </table>
-            </div>
-            <!-- 
-            <h2>ALPS</h2><a name="Alps"></a>
-            <div data-bind="foreach:series.ALPS">
-                <table class="table table-bordered table-striped table-condensed">
-                    <caption data-bind="text:name">Cybond57</caption>
-                    <thead>
-                        <tr>
-                            <th>Hora</th><th>Process</th><th>Pass</th><th>Fail</th><th>Meta</th><th>Tiempo de ciclo</th><th>Yield de produccion</th><th>Yield Proceso</th><th>Comentarios</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>6:30-10:30</td><td></td><td></td><td></td><td>6</td><td></td><td>0.0%</td><td>0.0%</td><td></td>
-                        </tr>
-                        <tr>
-                            <td>10:30-14:30</td><td></td><td></td><td></td><td>6</td><td></td><td>0.0%</td><td>0.0%</td><td></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-             -->
-        </div>
-    </div>
-    
+		<div class="span2">
+			<ul class="nav nav-tabs nav-stacked">
+				<li><a href="#SiLens">SiLens <span class="pull-right badge badge-success" data-bind="text:series.SiLens.length">7</span></a></li>
+				<li><a href="#ALPS">ALPS <span class="pull-right badge badge-success" data-bind="text:series.ALPS.length">7</span></a></li>
+				
+			</ul>
+				</div>
+		<div class="span10">
+			<h2>SiLens <small><a name="SiLens"></a><a href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
+			<div data-bind="foreach:{data:series.SiLens,as:'maquina'}">
+				<table class="table table-bordered table-striped table-condensed">
+					<caption data-bind="text:name + ' total:' + data.length">Machine Name</caption>
+					<thead>
+						<tr>
+							<th>Hora</th>
+							<th>Process</th>
+							<th>Pass</th>
+							<th>Fail</th>
+							<th>Meta</th>
+							<th>Tiempo de ciclo</th>
+							<th>Yield de produccion</th>
+							<th>Yield Proceso</th>
+							<th>Comentarios</th>
+						</tr>
+					</thead>
+					<tbody data-bind="foreach:yieldData">
+						
+						<pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>
+						<tr>
+							<td data-bind="text:moment($root.wh[h][0]).format('ddd d') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
+							<td data-bind="text:process">Process</td>
+							<td data-bind="text:pass">Pass</td>
+							<td data-bind="text:fail">Fail</td>
+							<td data-bind="text:meta">Meta</td>
+							<td data-bind="text:ciclo">Tiempo de ciclo</td>
+							<td data-bind="text:yieldProd + '%'">Yield de produccion</td>
+							<td data-bind="text:yieldProc + '%'">Yield Proceso</td>
+							<td data-bind="text:''">Comentarios</td>
+						</tr>
+						
+					</tbody>
+				</table>
+			</div>
+			
+			<h2>ALPS <small><a name="ALPS"></a><a href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
+			<div data-bind="foreach:{data:series.ALPS,as:'maquina'}">
+				<table class="table table-bordered table-striped table-condensed">
+					<caption data-bind="text:name + ' total:' + data.length">Machine Name</caption>
+					<thead>
+						<tr>
+							<th>Hora</th>
+							<th>Process</th>
+							<th>Pass</th>
+							<th>Fail</th>
+							<th>Meta</th>
+							<th>Tiempo de ciclo</th>
+							<th>Yield de produccion</th>
+							<th>Yield Proceso</th>
+							<th>Comentarios</th>
+						</tr>
+					</thead>
+					<tbody data-bind="foreach:yieldData">
+						
+						 <!-- <pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>  -->
+						<tr>
+							<td data-bind="text:moment($root.wh[h][0]).format('ddd d') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
+							<td data-bind="text:process">Process</td>
+							<td data-bind="text:pass">Pass</td>
+							<td data-bind="text:fail">Fail</td>
+							<td data-bind="text:meta">Meta</td>
+							<td data-bind="text:ciclo">Tiempo de ciclo</td>
+							<td data-bind="text:yieldProd + '%'">Yield de produccion</td>
+							<td data-bind="text:yieldProc + '%'">Yield Proceso</td>
+							<td data-bind="text:''">Comentarios</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			 
+		</div>
+	</div>
+	
 </div>
+<script type="text/javascript" src='./js/moment.js'></script>
 <script type="text/javascript" src='./js/date.js'></script>
 <script type="text/javascript" src="./jquery-1.8.1.min.js"></script>
 <script type="text/javascript" src='../jsLib/knockout/knockout.js'></script>
 <script type="text/javascript" src="./js/Sparky.js"></script>
 <script>
-    jQuery(document).ready(
-        console.log(App.addSeries(<?php echo(json_encode($series)) ?>))
-    );
+	jQuery(document).ready(
+		console.log(App.addSeries(<?php echo(json_encode($series)) ?>))
+	);
 </script>
 </body>
 </html>
