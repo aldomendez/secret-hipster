@@ -221,9 +221,9 @@ $series = "";
 					</thead>
 					<tbody data-bind="foreach:yieldData">
 						
-						<pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>
+						<!-- <pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre> -->
 						<tr>
-							<td data-bind="text:moment($root.wh[h][0]).format('ddd d') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
+							<td data-bind="text:moment($root.wh[h][0]).format('ddd D') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
 							<td data-bind="text:process">Process</td>
 							<td data-bind="text:pass">Pass</td>
 							<td data-bind="text:fail">Fail</td>
@@ -261,7 +261,7 @@ $series = "";
 						
 						 <!-- <pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>  -->
 						<tr>
-							<td data-bind="text:moment($root.wh[h][0]).format('ddd d') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
+							<td data-bind="text:moment($root.wh[h][0]).format('ddd D') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
 							<td data-bind="text:process">Process</td>
 							<td data-bind="text:pass">Pass</td>
 							<td data-bind="text:fail">Fail</td>
@@ -298,7 +298,7 @@ $series = "";
 						
 						 <!-- <pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>  -->
 						<tr>
-							<td data-bind="text:moment($root.wh[h][0]).format('ddd d') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
+							<td data-bind="text:moment($root.wh[h][0]).format('ddd D') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
 							<td data-bind="text:process">Process</td>
 							<td data-bind="text:pass">Pass</td>
 							<td data-bind="text:fail">Fail</td>
