@@ -179,15 +179,31 @@ $series = "";
 <div class="container-fluid">
 	<div class="row-fluid">
 		<div class="span2">
-			<ul class="nav nav-tabs nav-stacked">
-				<li><a href="#SiLens">SiLens <span class="pull-right badge badge-success" data-bind="text:series.SiLens.length">7</span></a></li>
-				<li><a href="#ALPS">ALPS <span class="pull-right badge badge-success" data-bind="text:series.ALPS.length">7</span></a></li>
-				
-			</ul>
-				</div>
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list">
+					<li class="nav-header">SiLens <span class="pull-right badge badge" data-bind="text:series.SiLens.length">7</span></li>
+					<!-- <pre data-bind="text:JSON.stringify(ko.toJSON(series.SiLens),null,2)"></pre> -->
+					<!-- ko foreach:series.SiLens -->
+					<li><a href="" data-bind="attr:{href:'#SiLens_' + name },html:name +' \<span class=\'pull-right badge badge-info\'\> ' + data.length + '\<\/span\>'"></a></li>
+					<!-- /ko -->
+					<li class="nav-header">ALPS <span class="pull-right badge badge" data-bind="text:series.ALPS.length">7</span></li>
+					<!-- <pre data-bind="text:JSON.stringify(ko.toJSON(series.ALPS),null,2)"></pre> -->
+					<!-- ko foreach:series.ALPS -->
+					<li><a href="" data-bind="attr:{href:'#ALPS_' + name },html:name +' \<span class=\'pull-right badge badge-info\'\> ' + data.length + '\<\/span\>'"></a></li>
+					<!-- /ko -->
+					<li class="nav-header">SHIM <span class="pull-right badge badge" data-bind="text:series.SHIM.length">7</span></li>
+					<!-- <pre data-bind="text:JSON.stringify(ko.toJSON(series.SHIM),null,2)"></pre> -->
+					<!-- ko foreach:series.SHIM -->
+					<li><a href="" data-bind="attr:{href:'#SHIM_' + name },html:name +' \<span class=\'pull-right badge badge-info\'\> ' + data.length + '\<\/span\>'"></a></li>
+					<!-- /ko -->
+				</ul>
+			</div>
+		</div>
 		<div class="span10">
-			<h2>SiLens <small><a name="SiLens"></a><a href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
+			<h2>SiLens <small><a name="SiLens"></a><a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
 			<div data-bind="foreach:{data:series.SiLens,as:'maquina'}">
+				<a href="#" data-bind="attr:{name:'SiLens_' + name}"></a>
+				<a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a>
 				<table class="table table-bordered table-striped table-condensed">
 					<caption data-bind="text:name + ' total:' + data.length">Machine Name</caption>
 					<thead>
@@ -222,8 +238,47 @@ $series = "";
 				</table>
 			</div>
 			
-			<h2>ALPS <small><a name="ALPS"></a><a href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
+			<h2>ALPS <small><a name="ALPS"></a><a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
 			<div data-bind="foreach:{data:series.ALPS,as:'maquina'}">
+				<a href="#" data-bind="attr:{name:'ALPS_' + name}"></a>
+				<a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a>
+				<table class="table table-bordered table-striped table-condensed">
+					<caption data-bind="text:name + ' total:' + data.length">Machine Name</caption>
+					<thead>
+						<tr>
+							<th>Hora</th>
+							<th>Process</th>
+							<th>Pass</th>
+							<th>Fail</th>
+							<th>Meta</th>
+							<th>Tiempo de ciclo</th>
+							<th>Yield de produccion</th>
+							<th>Yield Proceso</th>
+							<th>Comentarios</th>
+						</tr>
+					</thead>
+					<tbody data-bind="foreach:yieldData">
+						
+						 <!-- <pre data-bind="text: JSON.stringify(ko.toJS(yieldData), null, 2),visible:$root.debug"></pre>  -->
+						<tr>
+							<td data-bind="text:moment($root.wh[h][0]).format('ddd d') + ' ' + moment($root.wh[h][0]).format('HH:mm') + ' - ' + moment($root.wh[h][1]).format('HH:mm')">Hora</td>
+							<td data-bind="text:process">Process</td>
+							<td data-bind="text:pass">Pass</td>
+							<td data-bind="text:fail">Fail</td>
+							<td data-bind="text:meta">Meta</td>
+							<td data-bind="text:ciclo">Tiempo de ciclo</td>
+							<td data-bind="text:yieldProd + '%'">Yield de produccion</td>
+							<td data-bind="text:yieldProc + '%'">Yield Proceso</td>
+							<td data-bind="text:''">Comentarios</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			 
+			<h2>SHIM <small><a name="SHIM"></a><a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
+			<div data-bind="foreach:{data:series.SHIM,as:'maquina'}">
+				<a href="#" data-bind="attr:{name:'SHIM_' + name}"></a>
+				<a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a>
 				<table class="table table-bordered table-striped table-condensed">
 					<caption data-bind="text:name + ' total:' + data.length">Machine Name</caption>
 					<thead>

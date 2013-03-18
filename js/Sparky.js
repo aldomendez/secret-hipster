@@ -79,6 +79,9 @@ var App = App || (function($,ko) {
 		tokenizeALPS:function () {
 			Utils.tokenize('ALPS',27);
 		},
+		tokenizeSHIM:function () {
+			Utils.tokenize('SHIM',20);
+		},
 		tokenize: function (processName,meta) {
 			for (var o in App.data.series[processName]) {
 				ws = App.data.series[processName][o]; //Working Serie
@@ -264,6 +267,7 @@ var App = App || (function($,ko) {
 			Events.init();
 			Utils.tokenizeSiLens();
 			Utils.tokenizeALPS();
+			Utils.tokenizeSHIM();
 			// _log(App.data.series)
 			ko.applyBindings(App.data);
 
