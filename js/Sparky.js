@@ -10,7 +10,7 @@ var App = App || (function($,ko) {
 	Utils = {
 		settings: {
 			whTest : 0,
-			debug: false,
+			debug: true,
 			meta: {},
 			init: function() {
 				
@@ -49,13 +49,29 @@ var App = App || (function($,ko) {
 		},
 		addSeries: function (series) {
 			App.data.series = series;
-			return App.data.series;
+			Utils.tokenizeSiLens();
+			Utils.tokenizeALPS();
+			Utils.tokenizeSHIM();
+			// _log(App.data.series)
+			ko.applyBindings(App.data);
 		},
 		home_url: function(path){
 			if(typeof path=="undefined"){
 				path = '';
 			}
 			return Utils.settings.meta.homeURL+path+'/';            
+		},
+		serverVsLocalTimeOffset:function () {
+			return Utils.settings.serverTime - Utils.settings.localTime
+		},
+		setServerTime:function (time) {
+			// _log(time);
+			Utils.settings.serverTime = new Date(time * 1000);
+			_log(Utils.settings.serverTime);
+			Utils.settings.localTime = new Date();
+			Utils.settings.timeOffset = Utils.settings.localTime - Utils.settings.serverTime;
+			_log(Utils.settings.timeOffset);
+			return Utils.settings.timeOffset
 		},
 		log: function(what) {
 			if (Utils.settings.debug) {
@@ -87,6 +103,7 @@ var App = App || (function($,ko) {
 				ws = App.data.series[processName][o]; //Working Serie
 				ws.yieldData = ws.yieldData || [];
 				for (var i = 0; i < ws.data.length; i++) {
+					// _log(new Date(ws.data[i][0]) + " > " + Utils.settings.timeOffset);
 					var h = _matchHour(ws.data[i][0]);
 					//var h = Utils.newMatchHour(ws.data[i][0]);
 					hIndex = Utils.findIdGiven_h(ws.yieldData, h);
@@ -265,12 +282,6 @@ var App = App || (function($,ko) {
 
 			Utils.settings.init();
 			Events.init();
-			Utils.tokenizeSiLens();
-			Utils.tokenizeALPS();
-			Utils.tokenizeSHIM();
-			// _log(App.data.series)
-			ko.applyBindings(App.data);
-
 		}
 	};
 	
@@ -280,7 +291,8 @@ var App = App || (function($,ko) {
 		log:_log,
 		data:App.data,
 		h:Utils.settings.workingHours,
-		match:Utils.matchHour
+		serverTime:Utils.settings.serverTime,
+		setServerTime:Utils.setServerTime
 	};
 
 	return Public;

@@ -100,11 +100,11 @@
 					array_push($seriesNames[$step_name], $system_id);
 					array_push($n[$step_name], array('name' => $system_id, 'data' => array()));
 					$bonderIndex = array_search($system_id, $seriesNames[$step_name]);
-					array_push($n[$step_name][$bonderIndex]['data'], array((strtotime($value['PROCESS_DATE'])*1000)-21600000, round($value['CYCLE_TIME']/60,1),$value['PASS_FAIL']));
+					array_push($n[$step_name][$bonderIndex]['data'], array((strtotime($value['PROCESS_DATE'])*1000)/*-21600000*/, round($value['CYCLE_TIME']/60,1),$value['PASS_FAIL']));
 				} else {
 					// echo "[]-> Llego a ELSE " . $step_name . " " . $system_id . "<br/>";
 					$bonderIndex = array_search($system_id, $seriesNames[$step_name]);
-					array_push($n[$step_name][$bonderIndex]['data'], array((strtotime($value['PROCESS_DATE'])*1000)-21600000, round($value['CYCLE_TIME']/60,1),$value['PASS_FAIL']));
+					array_push($n[$step_name][$bonderIndex]['data'], array((strtotime($value['PROCESS_DATE'])*1000)/*-21600000*/, round($value['CYCLE_TIME']/60,1),$value['PASS_FAIL']));
 				}		
 			}
 		}
@@ -122,12 +122,20 @@ function getDataFromFile()
 $series = "";
 	if (true) {
 		$query = file_get_contents("./cicle_time_query.sql");
+		$timeSpan = $_GET['timeSpan'];
+		if ($timeSpan == 8){
+			$query = file_get_contents("./cicle_time_query_8h.sql");
+		}elseif ($timeSpan == 'ayer') {
+			$query = file_get_contents("./cicle_time_query_ayer.sql");
+		}
+
 		$conn = oci_connect('phase2', 'g4it2day', 'MXOPTIX');
 		$stid = oci_parse($conn, $query);
 		oci_execute($stid);
 		$series = getData($stid);
+		$query = "select";
 	} else {
-		$series = getDataFromFile();
+		//$series = getDataFromFile();
 	}
 
 	
@@ -167,8 +175,11 @@ $series = "";
 				<a class="brand" href="#">CyOptics</a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
-						<li class="active"><a href="../">Home</a></li>
+						<li><a href="../">Home</a></li>
 						<li><a href="."><i class="icon-refresh icon-white"></i> Actualizar</a></li>
+						<li <?php if ($_GET['timeSpan'] ==  8) { echo ' class="active"';} ?>><a href="./?timeSpan=8">8 horas</a></li>
+						<li <?php if ($_GET['timeSpan'] !=  8 && $_GET['timeSpan'] !=  'ayer') { echo ' class="active"';} ?>><a href=".">24 horas</a></li>
+						<li <?php if ($_GET['timeSpan'] ==  'ayer') { echo ' class="active"';} ?>><a href="./?timeSpan=ayer">Ayer</a></li>
 						<!-- <li><input type="checkbox" data-bind="checked:$data.debug"> development</label> -->
 						</li>
 					</ul>
@@ -177,8 +188,16 @@ $series = "";
 		</div>
 	</div>
 <div class="container-fluid">
+	<!-- <div class="row-fluid">
+		<div class="span12">
+			<div class="alert alert-success">
+				<button type="button" class="close" data-dismiss="alert">×</button>
+				<strong>Advertencia!</strong> La aplicacion esta reportando mal las fechas de las piezas, se esta trabajando para arreglar esta situacion
+			</div>
+		</div>
+	</div> -->
 	<div class="row-fluid">
-		<div class="span2">
+		<div class="span3">
 			<div class="well sidebar-nav">
 				<ul class="nav nav-list">
 					<li class="nav-header">SiLens <span class="pull-right badge badge" data-bind="text:series.SiLens.length">7</span></li>
@@ -199,7 +218,7 @@ $series = "";
 				</ul>
 			</div>
 		</div>
-		<div class="span10">
+		<div class="span9">
 			<h2>SiLens <small><a name="SiLens"></a><a class="muted" href="#start"><i class="icon-arrow-up"></i> Arriba</a></small></h2>
 			<div data-bind="foreach:{data:series.SiLens,as:'maquina'}">
 				<a href="#" data-bind="attr:{name:'SiLens_' + name}"></a>
@@ -322,9 +341,10 @@ $series = "";
 <script type="text/javascript" src='../jsLib/knockout/knockout.js'></script>
 <script type="text/javascript" src="./js/Sparky.js"></script>
 <script>
-	jQuery(document).ready(
-		console.log(App.addSeries(<?php echo(json_encode($series)) ?>))
-	);
+	jQuery(document).ready(function(){
+		App.setServerTime(<?php echo(date('U')) ?>);
+		App.addSeries(<?php echo(json_encode($series)) ?>);
+	});
 </script>
 </body>
 </html>
